@@ -1,0 +1,9 @@
+services:
+    skyfield:
+        container_name: skyfield
+        build:
+            context: ./docker
+        volumes: 
+            - "./app:/appdata/www"
+        ports:
+            - "4000:80"
