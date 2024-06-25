@@ -9,8 +9,8 @@ def hello():
 
 @app.route('/stars', methods=['GET'])
 def get_stars() -> list:
-    min_magnitude = request.args['min_magnitude']
-    max_magnitude = request.args['max_magnitude']
+    min_magnitude = request.args.get('min_magnitude', '-30')
+    max_magnitude = request.args.get('max_magnitude', '1.5')
     
     return get_stars_by_magnitude(float(max_magnitude), float(min_magnitude))
 
