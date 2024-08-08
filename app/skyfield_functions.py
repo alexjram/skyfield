@@ -16,7 +16,6 @@ hip_to_name = {v: k for k, v in named_star_dict.items()}
 
 def add_color_index() -> None:
     hipparcos_df = pd.read_csv('hip_main.dat', sep='|', header=None, usecols=[37], names=['color_index'])
-    print(hipparcos_df)
     dfg['color_index'] = hipparcos_df['color_index']
     
 add_color_index()
@@ -37,14 +36,20 @@ def get_stars_by_magnitude(max_magnitude: Optional[float], min_magnitude: Option
     ra, dec, distance = astrometric.radec()
     response = []
     for i in range(len(df)): 
+        try:
+            
+            color_index = float(df['color_index'].__array__()[i])
+        except Exception as e:
+            print(e)
+            color_index = 0
         response.append({
             "name": df['name'].__array__()[i],
             "right_ascension": ra.hours[i],
             "declination": dec.degrees[i],
             "distance": distance.au[i],
             "magnitude": df['magnitude'].__array__()[i],
-            "color": get_color(float(df['color_index'].__array__()[i])),
-            "color_index": float(df['color_index'].__array__()[i])
+            "color": get_color(color_index),
+            "color_index": color_index
         })
 
 
