@@ -22,8 +22,11 @@ add_color_index()
 
 def  get_star_name(hip):
     return hip_to_name.get(hip, f"HIP{hip}")
+def get_hip(hip):
+    return hip
 
-dfg["name"] = dfg.index.map(get_star_name)
+dfg["name"]= dfg.index.map(get_star_name)
+dfg['hip'] = dfg.index.map(get_hip)
 
 def get_stars_by_magnitude(max_magnitude: Optional[float], min_magnitude: Optional[float]) -> list:
 
@@ -57,20 +60,22 @@ def get_stars_by_magnitude(max_magnitude: Optional[float], min_magnitude: Option
 
 def get_star(index: int) -> dict:
     try:
-        star = dfg.iloc[index]
+        star = dfg.loc[dfg['hip'] == index]
+        star = star.iloc[0]
         starObject = Star.from_dataframe(star)
         t = load.timescale().now()
         astrometric = earth.at(t).observe(starObject)
         ra, dec, distance = astrometric.radec()
-        print(ra.hours)
-        print(star['ra_hours'].item())
+        color_index = star['color_index']
+        if color_index == '      ':
+            color_index = 0
         return {
             "name": star['name'],
             "right_ascension": ra.hours,
             "declination": dec.degrees,
             "magnitude": star['magnitude'].item(),
-            "color_index": float(star['color_index']),
-            "color": get_color(float(star['color_index']))
+            "color_index": float(color_index),
+            "color": get_color(float(color_index))
         }
     except Exception as e:
         print(e)
@@ -101,6 +106,27 @@ def get_constellations() -> list:
     
     return constellation_list
 
+def get_constellation(id: int) -> dict:
+    url = ('https://raw.githubusercontent.com/Stellarium/stellarium/master'
+       '/skycultures/modern_st/constellationship.fab')
+    with load.open(url) as f:
+        constellations = stellarium.parse_constellations(f)
+        
+    d = dict(load_constellation_names())
+    const = constellations[id]
+    constellation = {}
+    edges = []
+    for edge in const[1]:
+        edges.append([
+            get_star(edge[0]),
+            get_star(edge[1])
+        ])
+    constellation = {
+        "name": d[const[0]],
+        "edges": edges
+    }
+    
+    return constellation
 
 def get_color(color_index: float) -> str:
     if color_index <= -0.33:
