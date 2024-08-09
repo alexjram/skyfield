@@ -58,11 +58,16 @@ def get_stars_by_magnitude(max_magnitude: Optional[float], min_magnitude: Option
 def get_star(index: int) -> dict:
     try:
         star = dfg.iloc[index]
-    
+        starObject = Star.from_dataframe(star)
+        t = load.timescale().now()
+        astrometric = earth.at(t).observe(starObject)
+        ra, dec, distance = astrometric.radec()
+        print(ra.hours)
+        print(star['ra_hours'].item())
         return {
             "name": star['name'],
-            "right_ascension": star['ra_hours'].item(),
-            "declination": star['dec_degrees'].item(),
+            "right_ascension": ra.hours,
+            "declination": dec.degrees,
             "magnitude": star['magnitude'].item(),
             "color_index": float(star['color_index']),
             "color": get_color(float(star['color_index']))
