@@ -11,6 +11,7 @@ with load.open(hipparcos.URL) as f:
 barnards_star = Star.from_dataframe(dfg.loc[87937])
 planets = load('de421.bsp')
 earth = planets['earth']
+constellation_list = []
 
 hip_to_name = {v: k for k, v in named_star_dict.items()}
 
@@ -82,8 +83,13 @@ def get_star(index: int) -> dict:
         print(f"index {index} not found")
         return {}
 
-def get_constellations() -> list:
 
+
+
+def get_constellations() -> list:
+    if len(constellation_list) > 0:
+        return constellation_list
+    
     url = ('https://raw.githubusercontent.com/Stellarium/stellarium/master'
        '/skycultures/modern_st/constellationship.fab')
     with load.open(url) as f:
@@ -91,7 +97,6 @@ def get_constellations() -> list:
         
     d = dict(load_constellation_names())
         
-    constellation_list = []
     for constellation in constellations:
         edges = []
         for edge in constellation[1]:
@@ -144,3 +149,5 @@ def get_color(color_index: float) -> str:
     else:
         return '#FFCC98'
     
+def init() -> None:
+    get_constellations()

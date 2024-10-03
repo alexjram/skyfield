@@ -1,5 +1,5 @@
 from flask import Flask, request
-from skyfield_functions import get_constellations, get_stars_by_magnitude
+from skyfield_functions import get_constellations, get_stars_by_magnitude, init
 
 app = Flask(__name__)
 
@@ -17,5 +17,7 @@ def get_stars() -> list:
 @app.route('/constellations', methods=['GET'])
 def get_constellations_route() -> list:
     return get_constellations()
+
+init()
 
 app.run(host="0.0.0.0", debug=True, port=80)
